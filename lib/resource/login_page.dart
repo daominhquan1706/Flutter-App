@@ -12,6 +12,8 @@ class _LoginPageState extends State<LoginPage> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -20,20 +22,23 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: Center(
         child: RaisedButton(
           child: Text("login with google"),
           onPressed: () {
-            _handleSignIn()
-                .then(
-                  (FirebaseUser user) => Navigator.push(
+            _handleSignIn().then(
+              (FirebaseUser user) {
+                if (user != null) {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => MainPage(),
                     ),
-                  ),
-                )
-                .catchError((e) => print(e));
+                  );
+                }
+              },
+            ).catchError((e) => print(e));
           },
         ),
       ),
@@ -41,18 +46,25 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<FirebaseUser> _handleSignIn() async {
-    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+    try {
+      final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+      final AuthCredential credential = GoogleAuthProvider.getCredential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-    final FirebaseUser user =
-        (await _auth.signInWithCredential(credential)).user;
-    print("signed in " + user.displayName);
-    return user;
+      final FirebaseUser user =
+          (await _auth.signInWithCredential(credential)).user;
+      print("signed in " + user.displayName);
+      return user;
+    } catch (e) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("$e"),
+      ));
+      return null;
+    }
   }
 }

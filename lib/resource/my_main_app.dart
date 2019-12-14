@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/model/task.dart';
+import 'package:flutter_app/bloc/project_bloc.dart';
+import 'package:flutter_app/model/project_item_model.dart';
+import 'package:flutter_app/model/task_item_model.dart';
+import 'package:flutter_app/resource/create_project_page.dart';
 
 var borderRadius2 = BorderRadius.all(
   Radius.circular(10),
@@ -11,46 +15,54 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  FirebaseUser user;
+  ProjectBloc bloc = new ProjectBloc();
+
+  @override
+  void initState() {
+    FirebaseAuth.instance.currentUser().then((indexUser) {
+      user = indexUser;
+      setState(() {});
+    });
+    bloc.getProject();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    bloc.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 50,
-            ),
-            _myTopBar(),
-            ...Task.getLists(1).map((f) {
-              return TaskItem(
-                task: f,
-              );
-            }).toList(),
-            ...Task.getLists(1).map((f) {
-              return TaskItem(
-                task: f,
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {},
-      ),
+      body: _buildBody(),
+      floatingActionButton: _buildFloatingActionButton(),
+      drawer: _buildDrawer(),
     );
   }
 
   Widget _myTopBar() {
-    return ListTile(
-      leading: Container(
-        height: 45,
-        width: 45,
-        decoration:
-            BoxDecoration(color: Colors.grey, borderRadius: borderRadius2),
+    var title = Text("${user?.displayName}");
+    var subtitle = Text(
+      "${user?.email}",
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+    var avatar = Container(
+      height: 45,
+      width: 45,
+      decoration: BoxDecoration(
+        color: Colors.grey,
+        borderRadius: borderRadius2,
       ),
-      title: Text("Đào Minh Quân"),
-      subtitle: Text("project manager"),
+      child: user == null ? Container() : Image.network("${user?.photoUrl}"),
+    );
+    return ListTile(
+      leading: avatar,
+      title: title,
+      subtitle: subtitle,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -64,6 +76,97 @@ class _MainPageState extends State<MainPage> {
             Icons.search,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            height: 40,
+          ),
+          _myTopBar(),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.only(top: 8, left: 8),
+            child: Text("Projects"),
+          ),
+          _buildListProject(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton(
+      child: Icon(Icons.add),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => CreateProjectPage(bloc),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDrawer() {
+    var imageUrl =
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4NWO61pCCzLTe6L0FXeVgkdT3bsHjnOVAAqo-0TA6UeG-eoLg&s";
+    var avatar = Container(
+      height: 50,
+      width: 50,
+      child: user == null
+          ? Container()
+          : Image.network(user?.photoUrl ?? imageUrl),
+    );
+    return Drawer(
+      child: Column(
+        children: <Widget>[
+          DrawerHeader(
+            child: ListTile(
+              leading: avatar,
+              title: Text("${user?.displayName}"),
+              subtitle: Text("${user?.email}"),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListProject() {
+    return StreamBuilder(
+      stream: bloc.projectController.stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<Project> list = snapshot.data;
+          return list.isEmpty
+              ? Text("you dont have project... please create project")
+              : Column(
+                  children: list
+                      .map(
+                        (project) => _buildProjectItem(project),
+                      )
+                      .toList(),
+                );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
+    );
+  }
+
+  Widget _buildProjectItem(Project project) {
+    return Card(
+      child: ListTile(
+        title: Text(project.projectName),
+        subtitle: Text(project.createDate.toString()),
+        leading: Icon(Icons.book),
       ),
     );
   }
@@ -111,7 +214,7 @@ class TaskItem extends StatelessWidget {
                       size: 16,
                       color: Colors.grey.shade400,
                     ),
-                    Text(task.documentAmount.toString()),
+                    Text(task.toString()),
                     SizedBox(
                       width: 15,
                     ),
@@ -120,7 +223,7 @@ class TaskItem extends StatelessWidget {
                       size: 18,
                       color: Colors.grey.shade500,
                     ),
-                    Text(task.documentAmount.toString()),
+                    Text(task.toString()),
                     SizedBox(
                       width: 15,
                     ),
@@ -129,7 +232,7 @@ class TaskItem extends StatelessWidget {
                       size: 18,
                       color: Colors.grey.shade400,
                     ),
-                    Text(task.date),
+                    Text(task.createDate),
                   ],
                 ),
               ],

@@ -14,12 +14,16 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: FutureBuilder(
+        future: isLogin,
         builder: (context, snapShot) {
           if (snapShot.hasData) {
-            if (snapShot.data == null) {
-              return LoginPage();
-            } else {
-              return MainPage();
+            if (snapShot.data != null) {
+              bool isLogin = snapShot.data;
+              if (isLogin) {
+                return MainPage();
+              } else {
+                return LoginPage();
+              }
             }
           }
           return LoginPage();
