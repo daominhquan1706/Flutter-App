@@ -11,4 +11,5 @@ class AppColor {
   static Color borderTextFieldColorFocus = Color(0xff04819E);
   static Color backgroundTextFieldColor = Color(0xff161C20);
   static Color hintTextColor = Color(0xff4E6D70);
+  static Color cardTextTitleColor = Color(0xffB5CCD3);
 }

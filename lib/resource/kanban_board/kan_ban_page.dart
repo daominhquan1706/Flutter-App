@@ -20,6 +20,7 @@ class _KanBanPageState extends State<KanBanPage> {
   KanBanBloc bloc;
   KanBanState currentState = KanBanState.NormalState;
   final Project project;
+  Stage currentStage;
 
   _KanBanPageState(this.project);
   @override
@@ -57,10 +58,17 @@ class _KanBanPageState extends State<KanBanPage> {
             controller: pageController,
             children: [
               ...list
-                  .map((stage) => StageItemPage(
+                  .map(
+                    (stage) => StageItemPage(
                         state: currentState,
                         stage: stage,
-                      ))
+                        onChangeState: (state) {
+                          currentStage = stage;
+                          changeCurrentState(state);
+                        },
+                        isEditing: currentStage == stage,
+                        bloc: bloc),
+                  )
                   .toList(),
               _buildAddNewStageButton(),
             ],
@@ -113,6 +121,7 @@ class _KanBanPageState extends State<KanBanPage> {
     switch (currentState) {
       case KanBanState.AddNewStageState:
         return AppBar(
+          elevation: 0,
           backgroundColor: appbarColor,
           leading: IconButton(
             onPressed: () {
@@ -130,6 +139,7 @@ class _KanBanPageState extends State<KanBanPage> {
         );
       case KanBanState.AddNewTaskState:
         return AppBar(
+          elevation: 0,
           backgroundColor: appbarColor,
           leading: IconButton(
             onPressed: () {
@@ -149,11 +159,13 @@ class _KanBanPageState extends State<KanBanPage> {
         );
       case KanBanState.NormalState:
         return AppBar(
+          elevation: 0,
           backgroundColor: appbarColor,
           title: Text(data),
         );
       default:
         return AppBar(
+          elevation: 0,
           backgroundColor: appbarColor,
           title: Text(data),
         );

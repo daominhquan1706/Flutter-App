@@ -10,6 +10,7 @@ class MyCustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      autofocus: true,
       controller: controller,
       style: TextStyle(color: AppColor.titleTextColor),
       decoration: InputDecoration(

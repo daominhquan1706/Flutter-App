@@ -243,7 +243,7 @@ class TaskItem extends StatelessWidget {
                       size: 18,
                       color: Colors.grey.shade400,
                     ),
-                    Text(task.createDate),
+                    Text("${task.createDate}"),
                   ],
                 ),
               ],
