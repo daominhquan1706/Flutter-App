@@ -4,6 +4,7 @@ import 'package:flutter_app/bloc/project_bloc.dart';
 import 'package:flutter_app/model/project_item_model.dart';
 import 'package:flutter_app/model/task_item_model.dart';
 import 'package:flutter_app/resource/create_project_page.dart';
+import 'package:flutter_app/resource/kanban_board/kan_ban_page.dart';
 
 var borderRadius2 = BorderRadius.all(
   Radius.circular(10),
@@ -164,6 +165,16 @@ class _MainPageState extends State<MainPage> {
   Widget _buildProjectItem(Project project) {
     return Card(
       child: ListTile(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) {
+                return KanBanPage(project);
+              },
+            ),
+          );
+        },
         title: Text(project.projectName),
         subtitle: Text(project.createDate.toString()),
         leading: Icon(Icons.book),
