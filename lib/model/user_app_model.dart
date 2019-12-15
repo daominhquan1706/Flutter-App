@@ -14,7 +14,7 @@ class UserApp {
   }
 
   Map<String, dynamic> toJson(UserApp item) {
-    Map<String, dynamic> json;
+    Map<String, dynamic> json = {};
     json['name'] = item.name;
     json['email'] = item.email;
     json['create_date'] = item.createDate;

@@ -19,11 +19,11 @@ class Stage {
     this.projectId = snapshot['project_id'];
     this.stageName = snapshot['stage_name'];
     this.createDate = snapshot['create_date'];
-    this.tasks = snapshot['tasks'];
+    this.tasks = (snapshot['tasks'] as List).map((f) => f.toString()).toList();
   }
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> json;
+    Map<String, dynamic> json = {};
     json['project_id'] = this.projectId;
     json['stage_name'] = this.stageName;
     json['create_date'] = this.createDate;

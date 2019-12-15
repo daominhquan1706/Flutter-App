@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Task {
   String id;
   String userId;
+  String stageId;
   String projectId;
   String title;
   String content;
@@ -13,6 +14,7 @@ class Task {
   Task.fromSnapshot(DocumentSnapshot snapshot) {
     this.id = snapshot.documentID;
     this.userId = snapshot['user_id'];
+    this.stageId = snapshot['stage_id'];
     this.projectId = snapshot['project_id'];
     this.title = snapshot['title'];
     this.content = snapshot['content'];

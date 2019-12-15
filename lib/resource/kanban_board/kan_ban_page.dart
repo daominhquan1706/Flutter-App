@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/bloc/kanban_bloc.dart';
+import 'package:flutter_app/helper/color.dart';
+import 'package:flutter_app/helper/widget_helper.dart';
 import 'package:flutter_app/model/project_item_model.dart';
 import 'package:flutter_app/model/stage_item_model.dart';
 import 'package:flutter_app/resource/kanban_board/stage_item_page.dart';
@@ -25,7 +28,6 @@ class _KanBanPageState extends State<KanBanPage> {
     pageController = new PageController(
       initialPage: 0,
       viewportFraction: 0.8,
-      keepPage: true,
     );
     super.initState();
   }
@@ -40,7 +42,7 @@ class _KanBanPageState extends State<KanBanPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      backgroundColor: Colors.grey.shade400,
+      backgroundColor: AppColor.backgroundColor,
       body: _buildBody(),
     );
   }
@@ -54,7 +56,12 @@ class _KanBanPageState extends State<KanBanPage> {
           return PageView(
             controller: pageController,
             children: [
-              ...list.map((stage) => StageItemPage(stage: stage)).toList(),
+              ...list
+                  .map((stage) => StageItemPage(
+                        state: currentState,
+                        stage: stage,
+                      ))
+                  .toList(),
               _buildAddNewStageButton(),
             ],
           );
@@ -73,21 +80,26 @@ class _KanBanPageState extends State<KanBanPage> {
       new TextEditingController();
   Widget _buildAddNewStageButton() {
     return currentState == KanBanState.AddNewStageState
-        ? TextField(
-            controller: textEditingStageController,
-            decoration: InputDecoration(labelText: "Stage name"),
-          )
+        ? _buildTextFieldAddStage()
         : Column(
             children: <Widget>[
               RaisedButton(
+                elevation: 0,
                 onPressed: () {
                   changeCurrentState(KanBanState.AddNewStageState);
                 },
+                color: AppColor.backgroundColor,
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
-                    Icon(Icons.add),
-                    Text("Add new Stage"),
+                    Icon(
+                      Icons.add,
+                      color: AppColor.lightBlueTextColor,
+                    ),
+                    Text(
+                      "Add new Stage",
+                      style: TextStyle(color: AppColor.lightBlueTextColor),
+                    ),
                   ],
                 ),
               ),
@@ -96,9 +108,29 @@ class _KanBanPageState extends State<KanBanPage> {
   }
 
   Widget _buildAppBar() {
+    var data = project.projectName;
+    var appbarColor = AppColor.backgroundColor;
     switch (currentState) {
       case KanBanState.AddNewStageState:
         return AppBar(
+          backgroundColor: appbarColor,
+          leading: IconButton(
+            onPressed: () {
+              changeCurrentState(KanBanState.NormalState);
+            },
+            icon: Icon(Icons.close),
+          ),
+          actions: <Widget>[
+            IconButton(
+              onPressed: _onAddStage,
+              icon: Icon(Icons.check),
+            )
+          ],
+          title: Text(data),
+        );
+      case KanBanState.AddNewTaskState:
+        return AppBar(
+          backgroundColor: appbarColor,
           leading: IconButton(
             onPressed: () {
               changeCurrentState(KanBanState.NormalState);
@@ -109,26 +141,68 @@ class _KanBanPageState extends State<KanBanPage> {
             IconButton(
               onPressed: () {
                 changeCurrentState(KanBanState.NormalState);
-                bloc.addNewStage(textEditingStageController.text);
               },
               icon: Icon(Icons.check),
             )
           ],
-          title: Text("Project title"),
-        );
-      case KanBanState.AddNewTaskState:
-        return AppBar(
-          title: Text("Project title"),
+          title: Text(data),
         );
       case KanBanState.NormalState:
         return AppBar(
-          title: Text("Project title"),
+          backgroundColor: appbarColor,
+          title: Text(data),
         );
       default:
         return AppBar(
-          title: Text("Project title"),
+          backgroundColor: appbarColor,
+          title: Text(data),
         );
     }
+  }
+
+  Widget _buildTextFieldAddStage() {
+    return Padding(
+      padding: EdgeInsets.only(top: 8),
+      child: Column(
+        children: <Widget>[
+          MyCustomTextField(
+            controller: textEditingStageController,
+            hintText: 'Nhập tên của cột...',
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              MyCustomButton(
+                onPressed: () {
+                  changeCurrentState(KanBanState.NormalState);
+                },
+                text: 'Hủy bỏ',
+              ),
+              SizedBox(
+                width: 8,
+              ),
+              MyCustomButton(
+                onPressed: _onAddStage,
+                text: 'Thêm Cột',
+                borderColor: Color(0xff49ED45),
+                backgroundColor: Color(0xff49ED45).withOpacity(0.25),
+                textColor: Color(0xff92B4AC),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onAddStage() async {
+    changeCurrentState(KanBanState.NormalState);
+    await bloc.addNewStage(textEditingStageController.text);
+    changeCurrentState(KanBanState.NormalState);
+    textEditingStageController.text = '';
   }
 }
 
