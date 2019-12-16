@@ -12,9 +12,7 @@ class StageItemPage extends StatefulWidget {
   final Stage stage;
   final KanBanState state;
   final Function(KanBanState state) onChangeState;
-
   final bool isEditing;
-
   final KanBanBloc bloc;
 
   const StageItemPage({

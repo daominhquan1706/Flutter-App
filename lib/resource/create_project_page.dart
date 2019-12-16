@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/bloc/project_bloc.dart';
+import 'package:flutter_app/helper/color.dart';
+import 'package:flutter_app/helper/widget_helper.dart';
 import 'package:flutter_app/model/project_item_model.dart';
 
 class CreateProjectPage extends StatefulWidget {
@@ -21,8 +23,11 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.backgroundColor,
       appBar: AppBar(
-        title: Text("Task"),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text("Tạo bảng"),
       ),
       body: _buildBody(),
       floatingActionButton: _buildFloatActionButton(),
@@ -32,11 +37,13 @@ class _CreateProjectPageState extends State<CreateProjectPage> {
   Widget _buildBody() {
     return SingleChildScrollView(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          TextField(
-            controller: projectController,
-            decoration: InputDecoration(
-              labelText: "Project's name",
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: MyCustomTextField(
+              controller: projectController,
+              hintText: 'Nhập tên của bảng',
             ),
           ),
         ],

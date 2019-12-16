@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/bloc/project_bloc.dart';
+import 'package:flutter_app/helper/color.dart';
 import 'package:flutter_app/model/project_item_model.dart';
 import 'package:flutter_app/model/task_item_model.dart';
 import 'package:flutter_app/resource/create_project_page.dart';
@@ -38,6 +39,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.backgroundColor,
       body: _buildBody(),
       floatingActionButton: _buildFloatingActionButton(),
       drawer: _buildDrawer(),
@@ -45,11 +47,15 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _myTopBar() {
-    var title = Text("${user?.displayName}");
+    var title = Text(
+      "${user?.displayName}",
+      style: TextStyle(color: AppColor.titleTextColor),
+    );
     var subtitle = Text(
       "${user?.email}",
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
+      style: TextStyle(color: AppColor.subTitleTextColor),
     );
     var avatar = Container(
       height: 45,
@@ -69,12 +75,14 @@ class _MainPageState extends State<MainPage> {
         children: <Widget>[
           Icon(
             Icons.sort,
+            color: AppColor.titleTextColor,
           ),
           SizedBox(
             width: 10,
           ),
           Icon(
             Icons.search,
+            color: AppColor.titleTextColor,
           ),
         ],
       ),
@@ -91,9 +99,14 @@ class _MainPageState extends State<MainPage> {
           ),
           _myTopBar(),
           Divider(),
-          Padding(
-            padding: const EdgeInsets.only(top: 8, left: 8),
-            child: Text("Projects"),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8, left: 8),
+              child: Text(
+                "Bảng của tôi",
+                style: TextStyle(color: AppColor.subTitleTextColor),
+              ),
+            ),
           ),
           _buildListProject(),
         ],
@@ -163,21 +176,45 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget _buildProjectItem(Project project) {
-    return Card(
-      child: ListTile(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) {
-                return KanBanPage(project);
-              },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Card(
+        color: AppColor.cardColor,
+        child: ListTile(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return KanBanPage(project);
+                },
+              ),
+            );
+          },
+          title: Text(
+            project.projectName,
+            style: TextStyle(color: AppColor.titleTextColor),
+          ),
+          subtitle: Text(
+            project.createDate.toString(),
+            style: TextStyle(color: AppColor.subTitleTextColor),
+          ),
+          leading: Container(
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.all(
+                Radius.circular(3),
+              ),
             ),
-          );
-        },
-        title: Text(project.projectName),
-        subtitle: Text(project.createDate.toString()),
-        leading: Icon(Icons.book),
+            height: 40,
+            width: 40,
+            child: Center(
+                child: Icon(
+              Icons.book,
+              color: Colors.white,
+            )),
+          ),
+        ),
       ),
     );
   }
